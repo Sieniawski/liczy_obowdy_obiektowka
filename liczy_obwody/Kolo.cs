@@ -6,26 +6,26 @@ using System.Threading.Tasks;
 
 namespace liczy_obwody
 {
-    //wyjatki
+    public class PustaNazwa : Exception
+    {
+        public PustaNazwa(string Message) : base(Message) { }
+    }
+
     public class ZlyPromien : Exception
     {
-        public ZlyPromien(string Message) : base(Message)
-        { }
+        public ZlyPromien(string Message) : base(Message) { }
+    }
+    public class ZlyBok : Exception
+    {
+        public ZlyBok(string Message) : base(Message) { }
     }
 
-    public class ZlaNazwaKolo : Exception
+    public class Kolo : Ksztalt
     {
-        public ZlaNazwaKolo(string Message) : base(Message)
-        { }
-    }
+        private string s_nazwa;
+        private float f_promien;
 
-    class Kolo : Ksztalt
-    {
-
-        //Pola
-        private string s_nazwa = "";
-        private float f_promien = 0.0f;
-        public string S_nazwa
+        public string Nazwa
         {
             get
             {
@@ -33,10 +33,14 @@ namespace liczy_obwody
             }
             set
             {
+                if (string.IsNullOrEmpty(s_nazwa))
+                {
+                    throw new PustaNazwa("Nie można ustawić nazwy pustej.");
+                }
                 s_nazwa = value;
             }
         }
-        public float F_promien
+        public float Promien
         {
             get
             {
@@ -44,9 +48,10 @@ namespace liczy_obwody
             }
             set
             {
-                if (value < 1)
-                    throw new ZlyPromien($"Podaj dobry promien wiekszy od 1!");
-
+                if (f_promien < 1.0f)
+                {
+                    throw new ZlyPromien("Nie można ustawić promienia mniejszego niż jeden.");
+                }
                 f_promien = value;
             }
         }
@@ -56,50 +61,30 @@ namespace liczy_obwody
 
         }
 
-        public Kolo(float f_promien, string s_nazwa)
+        public Kolo(string nazwa, float promien)
         {
-            if (f_promien < 1)
-            {
-                throw new ZlyPromien($"Podaj dobry promien wiekszy od 1!");
-            }
-            if (string.IsNullOrEmpty(s_nazwa))
-            {
-                throw new ZlaNazwaKolo($"String jest pusty, wprowadz nazwe!");
-            }
-        }
-
-        public override void WyswietlInformacje()
-        {
-            Console.WriteLine($"Nazwa: {s_nazwa}, promień: {f_promien}");
+            s_nazwa = nazwa;
+            f_promien = promien;
         }
 
         public override void WprowadzDane()
         {
+            Console.Clear();
             do
             {
-                Console.WriteLine("Wprowadz nazwe:");
-                S_nazwa = Console.ReadLine();
-            } while (string.IsNullOrEmpty(s_nazwa));
-
-            while (true)
-            {
-                Console.WriteLine("Wprowadz promien:");
-                try
-                {
-                    F_promien = float.Parse(Console.ReadLine());
-                    break;
-                }
-                catch (Exception exc)
-                {
-                    Console.WriteLine(exc.Message);
-                }
+                Console.WriteLine("Wprowadz nazwę: ");
+                s_nazwa = Console.ReadLine();
             }
+            while (string.IsNullOrEmpty(s_nazwa));
+
+            do
+            {
+                Console.WriteLine("Wprowadź promień: ");
+            }
+            while (float.TryParse(Console.ReadLine(), out f_promien) == false || f_promien < 1.0f);
         }
 
-        public override float ObliczObwod()
-        {
-            return (float)(2.0f * Math.PI * f_promien);
-        }
+        public override float ObliczObwod() => (float)(2.0 * Math.PI * f_promien);
+        public override string WyswietlInformacje() => $"Nazwa obiektu: {s_nazwa} \nObwod wynosi: {ObliczObwod()}";
     }
-
 }

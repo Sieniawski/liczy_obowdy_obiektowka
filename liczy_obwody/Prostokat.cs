@@ -6,29 +6,13 @@ using System.Threading.Tasks;
 
 namespace liczy_obwody
 {
-    public class ZlaNazwaProstokat : Exception
+    public class Prostokat : Ksztalt
     {
-        public ZlaNazwaProstokat(string Message) : base(Message)
-        { }
-    }
+        private string s_nazwa;
+        private float f_boka;
+        private float f_bokb;
 
-    public class ZlyBokA : Exception
-    {
-        public ZlyBokA(string Message) : base(Message)
-        { }
-    }
-    public class ZlyBokB : Exception
-    {
-        public ZlyBokB(string Message) : base(Message)
-        { }
-    }
-    class Prostokat : Ksztalt
-    {
-        //Pola
-        private string s_nazwa = "";
-        private float f_boka = 0.0f;
-        private float f_bokb = 0.0f;
-        public string S_nazwa
+        public string Nazwa
         {
             get
             {
@@ -36,10 +20,15 @@ namespace liczy_obwody
             }
             set
             {
+                if (string.IsNullOrEmpty(s_nazwa))
+                {
+                    throw new PustaNazwa("Nie można ustawić nazwy pustej.");
+                }
                 s_nazwa = value;
             }
         }
-        public float F_boka
+
+        public float BokA
         {
             get
             {
@@ -47,10 +36,15 @@ namespace liczy_obwody
             }
             set
             {
-                F_boka = value;
+                if (f_boka < 1.0f)
+                {
+                    throw new ZlyBok("Nie można ustawić boku mniejszego niż jeden.");
+                }
+                f_boka = value;
             }
         }
-        public float F_bokb
+
+        public float BokB
         {
             get
             {
@@ -58,39 +52,50 @@ namespace liczy_obwody
             }
             set
             {
-                F_bokb = value;
+                if (f_bokb < 1.0f)
+                {
+                    throw new ZlyBok("Nie można ustawić boku mniejszego niż jeden.");
+                }
+                f_bokb = value;
             }
         }
 
-        public Prostokat(int iRokProdukcji, float fMarza, float fCenaZakupu)
+        public Prostokat()
         {
-            if (f_boka < 1)
-            {
-                throw new ZlyPromien($"Podaj dobry promien wiekszy od 1!");
-            }
-            if (f_bokb < 1)
-            {
-                throw new ZlyPromien($"Podaj dobry promien wiekszy od 1!");
-            }
-            if (string.IsNullOrEmpty(s_nazwa))
-            {
-                throw new ZlaNazwaProstokat($"String jest pusty, wprowadz nazwe!");
-            }
+
         }
 
-        public override void WyswietlInformacje()
+        public Prostokat(string nazwa, float boka, float bokb)
         {
-            throw new NotImplementedException();
+            s_nazwa = nazwa;
+            f_boka = boka;
+            f_bokb = bokb;
         }
 
         public override void WprowadzDane()
         {
-            throw new NotImplementedException();
+            Console.Clear();
+            do
+            {
+                Console.WriteLine("Wprowadz nazwę: ");
+                s_nazwa = Console.ReadLine();
+            }
+            while (string.IsNullOrEmpty(s_nazwa));
+
+            do
+            {
+                Console.WriteLine("Wprowadź bok a: ");
+            }
+            while (float.TryParse(Console.ReadLine(), out f_boka) == false || f_boka < 1.0f);
+
+            do
+            {
+                Console.WriteLine("Wprowadź bok b: ");
+            }
+            while (float.TryParse(Console.ReadLine(), out f_bokb) == false || f_bokb < 1.0f);
         }
 
-        public override float ObliczObwod()
-        {
-            throw new NotImplementedException();
-        }
+        public override float ObliczObwod() => (float)((2.0 * f_boka) + (2.0 * f_bokb));
+        public override string WyswietlInformacje() => $"Nazwa obiektu: {s_nazwa} \nObwod wynosi: {ObliczObwod()}";
     }
 }
